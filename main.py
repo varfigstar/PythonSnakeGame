@@ -1,4 +1,9 @@
 import pygame
+import config
+import random
+
+BLUE = (51, 51, 255)
+WHITE = (255, 255, 255)
 
 class Display:
 	"""Class for pygame 
@@ -6,12 +11,12 @@ class Display:
 	of screen (root), clock (fps-contorl
 	mechanism).
 	"""
+	FPS = 30
+	width = config.width
+	height = config.height
 
-	width = 600
-	height = 600
-
-	def __init__(self, width=600, 
-				height=600, fps=30):
+	def __init__(self, width=width, 
+				height=height):
 
 		pygame.init()
 
@@ -20,6 +25,10 @@ class Display:
 
 		self.screen = pygame.display.set_mode((width, height))
 		self.clock = pygame.time.Clock()
+
+	def fill_background(self, color=WHITE):
+		self.screen.fill(color)
+		pygame.display.flip()
 
 
 class GameBoard(Display):
@@ -30,11 +39,10 @@ class GameBoard(Display):
 	snake.
 	Subclass of Display.
 	"""
-	
 
 	def __init__(self):
 		self.matrix_map = self.generate_matrix()
-	
+		self.display = Display()
 
 
 	def generate_matrix(self, shape=(9, 9)):
@@ -51,11 +59,26 @@ class GameBoard(Display):
 
 		return matrix
 
-def run():
-	GameBoard()
+	def start_game(self):
+		run = True
+		while run:
+			self.display.clock.tick(Display.FPS)
 
+			#checking all events
+			for event in pygame.event.get():
+				#check is close button clicked
+				if event.type == pygame.QUIT:
+					run = False
+
+			self.display.fill_background(color=WHITE)
+			
+
+def run():
+	board = GameBoard()
+	board.start_game()
 
 
 if __name__=="__main__":
 
 	run()
+	pygame.quit()
