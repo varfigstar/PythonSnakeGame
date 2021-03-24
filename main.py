@@ -4,6 +4,30 @@ import random
 
 BLUE = (51, 51, 255)
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+class Snake(pygame.sprite.Sprite):
+	def __init__(self, coube_width, coube_height):
+		pygame.sprite.Sprite.__init__(self)
+		self.coube_width = coube_width
+		self.coube_height = coube_height
+		self.image = pygame.Surface((coube_width, coube_height))
+		self.image.fill(BLUE)
+		self.rect = self.image.get_rect()
+		self.rect.center = (config.width / 2, config.height / 2)
+		self.move_side = "right"
+
+	def update(self):
+		if self.move_side == "right":
+			self.rect.x += self.coube_width
+			
+
+		elif self.move_side == "left":
+			self.rect.x -= self.coube_width
+			
+		if self.rect.left > config.width:
+			self.rect.x = 0
+
 
 class Display:
 	"""Class for pygame 
@@ -11,7 +35,7 @@ class Display:
 	of screen (root), clock (fps-contorl
 	mechanism).
 	"""
-	FPS = 30
+	FPS = 3
 	width = config.width
 	height = config.height
 
@@ -19,17 +43,16 @@ class Display:
 				height=height):
 
 		pygame.init()
-
 		self.width = width
 		self.height = height
-
 		self.screen = pygame.display.set_mode((width, height))
 		self.clock = pygame.time.Clock()
 
-	def fill_background(self, color=WHITE):
-		self.screen.fill(color)
-		pygame.display.flip()
-
+	def draw_sprites(self, all_sprites):
+		#Take sprite group; iter in sprite group every sprite with update methond; filling background.
+		all_sprites.update()
+		self.screen.fill(BLACK)
+		all_sprites.draw(self.screen)
 
 class GameBoard(Display):
 	"""Class with
@@ -43,7 +66,10 @@ class GameBoard(Display):
 	def __init__(self):
 		self.matrix_map = self.generate_matrix()
 		self.display = Display()
+		self.all_sprites = pygame.sprite.Group()
+		self.snake = Snake(self.coube_width, self.coube_height)
 
+		self.all_sprites.add(self.snake)
 
 	def generate_matrix(self, shape=(9, 9)):
 		matrix = []
@@ -60,6 +86,8 @@ class GameBoard(Display):
 		return matrix
 
 	def start_game(self):
+
+
 		run = True
 		while run:
 			self.display.clock.tick(Display.FPS)
@@ -70,8 +98,10 @@ class GameBoard(Display):
 				if event.type == pygame.QUIT:
 					run = False
 
-			self.display.fill_background(color=WHITE)
-			
+			self.display.draw_sprites(self.all_sprites)
+
+			#flip all drawed pixels on the user screen
+			pygame.display.flip()
 
 def run():
 	board = GameBoard()
